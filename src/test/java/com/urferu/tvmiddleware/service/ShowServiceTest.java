@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.urferu.tvmiddleware.client.TvMazeClient;
 import com.urferu.tvmiddleware.dto.response.CommentResponse;
+import com.urferu.tvmiddleware.dto.response.ShowDetailResponse;
 import com.urferu.tvmiddleware.dto.response.ShowSearchResponse;
 import com.urferu.tvmiddleware.dto.tvmaze.TvMazeSearchItemDto;
 import com.urferu.tvmiddleware.dto.tvmaze.TvMazeShowDto;
@@ -71,8 +72,12 @@ class ShowServiceTest {
     void getShowReturnsCachedShowWithoutCallingTvMaze() {
         TvMazeShowDto cached = ShowFixtures.show(1L, "Under the Dome", "CBS", null, "Resumen", List.of("Drama"));
         when(showCacheRepository.findById(1L)).thenReturn(Optional.of(new ShowCache(cached)));
+        when(commentService.findByShowId(1L)).thenReturn(List.of(new CommentResponse("Top", 5)));
 
-        assertThat(showService.getShow(1L)).isEqualTo(cached);
+        ShowDetailResponse result = showService.getShow(1L);
+
+        assertThat(result.show()).isEqualTo(cached);
+        assertThat(result.comments()).containsExactly(new CommentResponse("Top", 5));
         verify(tvMazeClient, never()).getShow(1L);
         verify(showCacheRepository, never()).save(any());
     }
@@ -82,8 +87,12 @@ class ShowServiceTest {
         TvMazeShowDto show = ShowFixtures.show(1L, "Under the Dome", "CBS", null, "Resumen", List.of("Drama"));
         when(showCacheRepository.findById(1L)).thenReturn(Optional.empty());
         when(tvMazeClient.getShow(1L)).thenReturn(show);
+        when(commentService.findByShowId(1L)).thenReturn(List.of());
 
-        assertThat(showService.getShow(1L)).isEqualTo(show);
+        ShowDetailResponse result = showService.getShow(1L);
+
+        assertThat(result.show()).isEqualTo(show);
+        assertThat(result.comments()).isEmpty();
         verify(showCacheRepository).save(any(ShowCache.class));
     }
 

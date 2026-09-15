@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 
 import com.urferu.tvmiddleware.client.TvMazeClient;
+import com.urferu.tvmiddleware.dto.response.ShowDetailResponse;
 import com.urferu.tvmiddleware.dto.response.ShowSearchResponse;
 import com.urferu.tvmiddleware.dto.tvmaze.TvMazeSearchItemDto;
 import com.urferu.tvmiddleware.dto.tvmaze.TvMazeShowDto;
@@ -49,10 +50,11 @@ public class ShowService {
         return showMapper.toSearchResponse(show, commentService.findByShowId(show.id()));
     }
 
-    public TvMazeShowDto getShow(Long showId) {
-        return showCacheRepository.findById(showId)
+    public ShowDetailResponse getShow(Long showId) {
+        TvMazeShowDto show = showCacheRepository.findById(showId)
                 .map(ShowCache::getPayload)
                 .orElseGet(() -> fetchAndCache(showId));
+        return new ShowDetailResponse(show, commentService.findByShowId(showId));
     }
 
     /**

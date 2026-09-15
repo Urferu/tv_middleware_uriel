@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.urferu.tvmiddleware.dto.response.CommentResponse;
+import com.urferu.tvmiddleware.dto.response.ShowDetailResponse;
 import com.urferu.tvmiddleware.dto.response.ShowSearchResponse;
 import com.urferu.tvmiddleware.exception.GlobalExceptionHandler;
 import com.urferu.tvmiddleware.exception.ShowNotFoundException;
@@ -54,15 +56,18 @@ class ShowControllerTest {
 
     @Test
     void getShowReturnsCompleteShow() throws Exception {
-        when(showService.getShow(1L)).thenReturn(
-                ShowFixtures.show(1L, "Under the Dome", "CBS", null, "Resumen", List.of("Drama"))
-        );
+        when(showService.getShow(1L)).thenReturn(new ShowDetailResponse(
+                ShowFixtures.show(1L, "Under the Dome", "CBS", null, "Resumen", List.of("Drama")),
+                List.of(new CommentResponse("Buen arranque", 4))
+        ));
 
         mockMvc.perform(get("/api/shows/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Under the Dome"))
-                .andExpect(jsonPath("$.network.name").value("CBS"));
+                .andExpect(jsonPath("$.network.name").value("CBS"))
+                .andExpect(jsonPath("$.comments[0].comment").value("Buen arranque"))
+                .andExpect(jsonPath("$.comments[0].rating").value(4));
     }
 
     @Test

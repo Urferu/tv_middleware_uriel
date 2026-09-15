@@ -1,6 +1,6 @@
 # TV Middleware
 
-API middleware en Spring Boot que se apoya en [TV Maze](https://www.tvmaze.com/api) para buscar shows, consultar su detalle y, más adelante, guardar comentarios.
+API middleware en Spring Boot que se apoya en [TV Maze](https://www.tvmaze.com/api) para buscar shows, consultar su detalle y guardar comentarios.
 
 ## Punto 0 — Base del proyecto
 
@@ -57,6 +57,10 @@ curl -X POST "http://localhost:8080/api/shows/1/comments" \
   -H "Content-Type: application/json" \
   -d "{\"comment\":\"Muy buena\",\"rating\":5}"
 ```
+
+## Punto B — Show con comentarios
+
+Antes de responder el detalle, se agrega `comments` al objeto del show (cache o TV Maze) con los comentarios guardados para ese id.
 
 ## MongoDB Atlas
 
