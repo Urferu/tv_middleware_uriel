@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.urferu.tvmiddleware.client.TvMazeClient;
+import com.urferu.tvmiddleware.dto.response.CommentResponse;
 import com.urferu.tvmiddleware.dto.response.ShowSearchResponse;
 import com.urferu.tvmiddleware.dto.tvmaze.TvMazeSearchItemDto;
 import com.urferu.tvmiddleware.dto.tvmaze.TvMazeShowDto;
@@ -38,16 +39,21 @@ class ShowServiceTest {
     @Mock
     private ShowCacheRepository showCacheRepository;
 
+    @Mock
+    private CommentService commentService;
+
     @InjectMocks
     private ShowService showService;
 
     @Test
     void searchMapsEachShowFromTvMaze() {
         TvMazeShowDto show = ShowFixtures.show(139L, "Girls", "HBO", null, "Resumen", List.of("Drama"));
-        ShowSearchResponse mapped = new ShowSearchResponse(139L, "Girls", "HBO", "Resumen", List.of("Drama"));
+        List<CommentResponse> comments = List.of(new CommentResponse("Muy buena", 5));
+        ShowSearchResponse mapped = new ShowSearchResponse(139L, "Girls", "HBO", "Resumen", List.of("Drama"), comments);
 
         when(tvMazeClient.searchShows("girls")).thenReturn(List.of(new TvMazeSearchItemDto(0.9, show)));
-        when(showMapper.toSearchResponse(show)).thenReturn(mapped);
+        when(commentService.findByShowId(139L)).thenReturn(comments);
+        when(showMapper.toSearchResponse(show, comments)).thenReturn(mapped);
 
         List<ShowSearchResponse> result = showService.search("girls");
 

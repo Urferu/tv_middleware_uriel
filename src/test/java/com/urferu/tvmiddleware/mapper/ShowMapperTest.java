@@ -41,5 +41,6 @@ class ShowMapperTest {
         assertThat(response.channel()).isEqualTo("HBO");
         assertThat(response.summary()).isEqualTo("<p>Una serie de HBO</p>");
         assertThat(response.genres()).containsExactly("Drama", "Romance");
+        assertThat(response.comments()).isEmpty();
     }
 }

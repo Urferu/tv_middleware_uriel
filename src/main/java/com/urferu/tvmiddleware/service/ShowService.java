@@ -20,23 +20,33 @@ public class ShowService {
     private final TvMazeClient tvMazeClient;
     private final ShowMapper showMapper;
     private final ShowCacheRepository showCacheRepository;
+    private final CommentService commentService;
 
     public ShowService(
             TvMazeClient tvMazeClient,
             ShowMapper showMapper,
-            ShowCacheRepository showCacheRepository
+            ShowCacheRepository showCacheRepository,
+            CommentService commentService
     ) {
         this.tvMazeClient = tvMazeClient;
         this.showMapper = showMapper;
         this.showCacheRepository = showCacheRepository;
+        this.commentService = commentService;
     }
 
     public List<ShowSearchResponse> search(String searchQuery) {
         return tvMazeClient.searchShows(searchQuery).stream()
                 .map(TvMazeSearchItemDto::show)
                 .filter(Objects::nonNull)
-                .map(showMapper::toSearchResponse)
+                .map(this::toSearchResponseWithComments)
                 .toList();
+    }
+
+    /**
+     * Arma el item de búsqueda y le pega los comentarios guardados de ese show.
+     */
+    private ShowSearchResponse toSearchResponseWithComments(TvMazeShowDto show) {
+        return showMapper.toSearchResponse(show, commentService.findByShowId(show.id()));
     }
 
     public TvMazeShowDto getShow(Long showId) {

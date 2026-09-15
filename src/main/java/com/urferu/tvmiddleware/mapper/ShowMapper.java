@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.urferu.tvmiddleware.dto.response.CommentResponse;
 import com.urferu.tvmiddleware.dto.response.ShowSearchResponse;
 import com.urferu.tvmiddleware.dto.tvmaze.TvMazeShowDto;
 
@@ -27,12 +28,17 @@ public class ShowMapper {
     }
 
     public ShowSearchResponse toSearchResponse(TvMazeShowDto show) {
+        return toSearchResponse(show, List.of());
+    }
+
+    public ShowSearchResponse toSearchResponse(TvMazeShowDto show, List<CommentResponse> comments) {
         return new ShowSearchResponse(
                 show.id(),
                 show.name(),
                 resolveChannel(show),
                 show.summary(),
-                show.genres() == null ? List.of() : show.genres()
+                show.genres() == null ? List.of() : show.genres(),
+                comments == null ? List.of() : comments
         );
     }
 }

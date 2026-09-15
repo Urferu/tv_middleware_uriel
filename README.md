@@ -26,6 +26,10 @@ Ejemplo:
 curl "http://localhost:8080/api/shows/search?search_query=girls"
 ```
 
+## Punto A — Search con comentarios
+
+Después de consultar TV Maze, cada show del arreglo incluye `comments` con los `{comment, rating}` guardados en Mongo para ese id. Si no hay comentarios, el arreglo va vacío.
+
 ## Punto B — Detalle de show
 
 Quedó `GET /api/shows/{showId}`. Pide el show a `https://api.tvmaze.com/shows/{id}` y lo devuelve completo (nombre, géneros, network, imágenes, rating, `_links`, etc.).

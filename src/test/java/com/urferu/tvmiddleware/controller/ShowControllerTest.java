@@ -33,7 +33,7 @@ class ShowControllerTest {
     @Test
     void searchReturnsShowArray() throws Exception {
         when(showService.search("girls")).thenReturn(List.of(
-                new ShowSearchResponse(139L, "Girls", "HBO", "Resumen", List.of("Drama"))
+                new ShowSearchResponse(139L, "Girls", "HBO", "Resumen", List.of("Drama"), List.of())
         ));
 
         mockMvc.perform(get("/api/shows/search").param("search_query", "girls"))
@@ -41,7 +41,8 @@ class ShowControllerTest {
                 .andExpect(jsonPath("$[0].id").value(139))
                 .andExpect(jsonPath("$[0].name").value("Girls"))
                 .andExpect(jsonPath("$[0].channel").value("HBO"))
-                .andExpect(jsonPath("$[0].genres[0]").value("Drama"));
+                .andExpect(jsonPath("$[0].genres[0]").value("Drama"))
+                .andExpect(jsonPath("$[0].comments").isArray());
     }
 
     @Test
