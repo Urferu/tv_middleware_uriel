@@ -16,7 +16,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.urferu.tvmiddleware.dto.response.ShowSearchResponse;
 import com.urferu.tvmiddleware.exception.GlobalExceptionHandler;
+import com.urferu.tvmiddleware.exception.ShowNotFoundException;
 import com.urferu.tvmiddleware.service.ShowService;
+import com.urferu.tvmiddleware.support.ShowFixtures;
 
 @WebMvcTest(ShowController.class)
 @Import(GlobalExceptionHandler.class)
@@ -47,5 +49,27 @@ class ShowControllerTest {
         mockMvc.perform(get("/api/shows/search"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400));
+    }
+
+    @Test
+    void getShowReturnsCompleteShow() throws Exception {
+        when(showService.getShow(1L)).thenReturn(
+                ShowFixtures.show(1L, "Under the Dome", "CBS", null, "Resumen", List.of("Drama"))
+        );
+
+        mockMvc.perform(get("/api/shows/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Under the Dome"))
+                .andExpect(jsonPath("$.network.name").value("CBS"));
+    }
+
+    @Test
+    void getShowWhenMissingReturns404() throws Exception {
+        when(showService.getShow(99L)).thenThrow(new ShowNotFoundException(99L));
+
+        mockMvc.perform(get("/api/shows/99"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404));
     }
 }

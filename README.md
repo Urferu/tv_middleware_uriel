@@ -26,6 +26,16 @@ Ejemplo:
 curl "http://localhost:8080/api/shows/search?search_query=girls"
 ```
 
+## Punto B — Detalle de show
+
+Quedó `GET /api/shows/{showId}`. Pide el show a `https://api.tvmaze.com/shows/{id}` y lo devuelve completo (nombre, géneros, network, imágenes, rating, `_links`, etc.).
+
+Si TV Maze responde 404, el advice regresa 404 con el formato de error del proyecto.
+
+```bash
+curl "http://localhost:8080/api/shows/1"
+```
+
 ## Cómo correrlo
 
 ```bash
