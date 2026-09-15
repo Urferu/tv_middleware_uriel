@@ -42,6 +42,18 @@ Antes de llamar a TV Maze, `GET /api/shows/{showId}` busca el id en la colecció
 
 Así se evita pegarle a TV Maze en cada detalle y se cumple el cache pedido en el examen.
 
+## Punto C — Comentarios
+
+Quedó `POST /api/shows/{showId}/comments` para guardar un comentario y una calificación de 0 a 5 en la colección `comments`, ligados al id del show. Responde el status de la petición.
+
+Hibernate Validator rechaza rating fuera de rango o comentario vacío.
+
+```bash
+curl -X POST "http://localhost:8080/api/shows/1/comments" \
+  -H "Content-Type: application/json" \
+  -d "{\"comment\":\"Muy buena\",\"rating\":5}"
+```
+
 ## MongoDB Atlas
 
 El examen pide un cluster gratuito sin restricción de IP. Spring Data MongoDB ya está cableado y lee la URI desde `MONGODB_URI` (no se sube al repo).
