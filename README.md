@@ -36,6 +36,24 @@ Si TV Maze responde 404, el advice regresa 404 con el formato de error del proye
 curl "http://localhost:8080/api/shows/1"
 ```
 
+## MongoDB Atlas
+
+El examen pide un cluster gratuito sin restricción de IP. Spring Data MongoDB ya está cableado y lee la URI desde `MONGODB_URI` (no se sube al repo).
+
+Pasos para el cluster:
+
+1. Crear cuenta y un cluster **M0** en [MongoDB Atlas](https://www.mongodb.com/atlas).
+2. En **Database Access**, crear un usuario con contraseña.
+3. En **Network Access**, permitir `0.0.0.0/0` (cualquier IP).
+4. En **Connect**, copiar la URI `mongodb+srv://...` y poner la base `tv_middleware`.
+5. Exportar la variable o copiar `.env.example` a un `.env` local (este último no se commitea):
+
+```bash
+export MONGODB_URI="mongodb+srv://USER:PASSWORD@CLUSTER.mongodb.net/tv_middleware?retryWrites=true&w=majority"
+```
+
+Las pruebas unitarias no levantan Mongo: el perfil de test excluye el auto-config para no depender del cluster.
+
 ## Cómo correrlo
 
 ```bash
