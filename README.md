@@ -36,6 +36,12 @@ Si TV Maze responde 404, el advice regresa 404 con el formato de error del proye
 curl "http://localhost:8080/api/shows/1"
 ```
 
+## Punto B — Cache de shows
+
+Antes de llamar a TV Maze, `GET /api/shows/{showId}` busca el id en la colección `shows` de Mongo. Si ya está, se devuelve ese documento. Si no, se consulta la API, se guarda el show y luego se responde.
+
+Así se evita pegarle a TV Maze en cada detalle y se cumple el cache pedido en el examen.
+
 ## MongoDB Atlas
 
 El examen pide un cluster gratuito sin restricción de IP. Spring Data MongoDB ya está cableado y lee la URI desde `MONGODB_URI` (no se sube al repo).

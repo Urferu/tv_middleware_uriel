@@ -2,9 +2,13 @@ package com.urferu.tvmiddleware.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +22,8 @@ import com.urferu.tvmiddleware.dto.tvmaze.TvMazeSearchItemDto;
 import com.urferu.tvmiddleware.dto.tvmaze.TvMazeShowDto;
 import com.urferu.tvmiddleware.exception.ShowNotFoundException;
 import com.urferu.tvmiddleware.mapper.ShowMapper;
+import com.urferu.tvmiddleware.model.ShowCache;
+import com.urferu.tvmiddleware.repository.ShowCacheRepository;
 import com.urferu.tvmiddleware.support.ShowFixtures;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,6 +34,9 @@ class ShowServiceTest {
 
     @Mock
     private ShowMapper showMapper;
+
+    @Mock
+    private ShowCacheRepository showCacheRepository;
 
     @InjectMocks
     private ShowService showService;
@@ -53,19 +62,33 @@ class ShowServiceTest {
     }
 
     @Test
-    void getShowReturnsTvMazeShow() {
+    void getShowReturnsCachedShowWithoutCallingTvMaze() {
+        TvMazeShowDto cached = ShowFixtures.show(1L, "Under the Dome", "CBS", null, "Resumen", List.of("Drama"));
+        when(showCacheRepository.findById(1L)).thenReturn(Optional.of(new ShowCache(cached)));
+
+        assertThat(showService.getShow(1L)).isEqualTo(cached);
+        verify(tvMazeClient, never()).getShow(1L);
+        verify(showCacheRepository, never()).save(any());
+    }
+
+    @Test
+    void getShowFetchesAndCachesWhenMissing() {
         TvMazeShowDto show = ShowFixtures.show(1L, "Under the Dome", "CBS", null, "Resumen", List.of("Drama"));
+        when(showCacheRepository.findById(1L)).thenReturn(Optional.empty());
         when(tvMazeClient.getShow(1L)).thenReturn(show);
 
         assertThat(showService.getShow(1L)).isEqualTo(show);
+        verify(showCacheRepository).save(any(ShowCache.class));
     }
 
     @Test
     void getShowThrowsWhenTvMazeReturnsNothing() {
+        when(showCacheRepository.findById(99L)).thenReturn(Optional.empty());
         when(tvMazeClient.getShow(99L)).thenReturn(null);
 
         assertThatThrownBy(() -> showService.getShow(99L))
                 .isInstanceOf(ShowNotFoundException.class)
                 .hasMessageContaining("99");
+        verify(showCacheRepository, never()).save(any());
     }
 }
