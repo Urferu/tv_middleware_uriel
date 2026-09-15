@@ -12,7 +12,19 @@ Se armó el esqueleto de la aplicación para poder ir sumando los endpoints del 
 - Hibernate Validator queda disponible desde `spring-boot-starter-validation`.
 - Pruebas unitarias del advice con JUnit 5 y MockMvc.
 
-Los endpoints de search, show y comments se agregan en los siguientes puntos.
+## Punto A — Búsqueda de shows
+
+Quedó el endpoint `GET /api/shows/search?search_query={texto}`.
+
+Consulta `https://api.tvmaze.com/search/shows?q=` y arma un arreglo con `id`, `name`, `channel`, `summary` y `genres`. El canal sale del `network` cuando existe; si el show es de streaming se usa el `webChannel`.
+
+Si falta `search_query` o TV Maze falla, responde el advice con 400 o 502.
+
+Ejemplo:
+
+```bash
+curl "http://localhost:8080/api/shows/search?search_query=girls"
+```
 
 ## Cómo correrlo
 

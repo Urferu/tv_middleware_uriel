@@ -1,0 +1,51 @@
+package com.urferu.tvmiddleware.controller;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import com.urferu.tvmiddleware.dto.response.ShowSearchResponse;
+import com.urferu.tvmiddleware.exception.GlobalExceptionHandler;
+import com.urferu.tvmiddleware.service.ShowService;
+
+@WebMvcTest(ShowController.class)
+@Import(GlobalExceptionHandler.class)
+class ShowControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private ShowService showService;
+
+    @Test
+    void searchReturnsShowArray() throws Exception {
+        when(showService.search("girls")).thenReturn(List.of(
+                new ShowSearchResponse(139L, "Girls", "HBO", "Resumen", List.of("Drama"))
+        ));
+
+        mockMvc.perform(get("/api/shows/search").param("search_query", "girls"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(139))
+                .andExpect(jsonPath("$[0].name").value("Girls"))
+                .andExpect(jsonPath("$[0].channel").value("HBO"))
+                .andExpect(jsonPath("$[0].genres[0]").value("Drama"));
+    }
+
+    @Test
+    void searchWithoutQueryReturns400() throws Exception {
+        mockMvc.perform(get("/api/shows/search"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400));
+    }
+}
